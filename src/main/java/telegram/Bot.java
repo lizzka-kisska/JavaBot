@@ -5,10 +5,23 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import telegram.command.*;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Bot extends TelegramLongPollingBot {
+    private final Map<String, Command> commands = new LinkedHashMap<>();
+
+    {
+        commands.put("/start", new StartCommand());
+        commands.put("/about", new AboutCommand());
+        commands.put("/echo", new EchoCommand());
+        commands.put("/help", new HelpCommand(commands));
+
+    }
+
     @Override
     public String getBotUsername() {
         return "dripNdrainBot";
@@ -16,7 +29,12 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "5652087564:AAFMNUwqTISFuKEr9_ilOt-mWxhqX_xsjzI";
+        TokenReader token = new TokenReader();
+        try {
+            return token.tokenReader("constant.txt");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -30,7 +48,7 @@ public class Bot extends TelegramLongPollingBot {
                 //Достаем из inMess id чата пользователя
                 String chatId = message.getChatId().toString();
                 //Получаем текст сообщения пользователя, отправляем в написанный нами обработчик
-                String response = parseMessage(message.getText());
+                String response = parseProcessMessage(message.getText());
                 //Создаем объект класса SendMessage - наш будущий ответ пользователю
                 SendMessage sendResponse = new SendMessage();
 
@@ -46,59 +64,32 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public String parseMessage(String textMsg) {
+    public String parseProcessMessage(String textMsg) {
         String errorMes = "нажми /help, чтобы узнать команды >:(";
-
-        HashMap<String, String> commandsMap = new HashMap<>();
 
         int spaceIndex = textMsg.indexOf(" ");
         String command = spaceIndex != -1 ? textMsg.substring(0, spaceIndex) : textMsg;
         String message = spaceIndex != -1 ? textMsg.substring(spaceIndex+1) : null;
 
-        commandsMap.put("/start", """
-                Приффки))
-                Это бот нереальной легенды сунца Евы Марченковой и просто крутой чиксы Лизы Ант
-                Нажми на /help, чтобы узнать, какие есть команды""");
-
-        commandsMap.put("/about", """
-                Это крутой бот свэг
-                Ты можешь помочь другим и/или попросить помощи других с выбором шмоток, лука, прически, мэкапа, стиля музыки итд""");
-
-        commandsMap.put("/echo", message != null ? message : "/echo");
-
-        commandsMap.put("/help", """
-                Наши команды:
-                /start - привествие
-                /help - все команды
-                /about - все о крутом боте свэге
-                /echo + что-то - если тебе так нужно, бот повторит твое что-то
-                /help + команда - все о команде
-                Пожалуйста, пиши допслова после команд через пробел:P""");
-
-        HashMap<String, String> commandHelp = new HashMap<>();
-        commandHelp.put("/start", "команда, которую нужно использовать, если ты забыл," +
-                " кто создатели бота или приветсвие");
-        commandHelp.put("/help", "команда, с помощью которой ты узнаешь другие команды бота");
-        commandHelp.put("/about", "команда, с помощью которой ты узнаешь для чего этот бот, " +
-                "кроме как для зачета по ооп");
-        commandHelp.put("/echo", "команда, которую ты ДОЛЖЕН использовать с каким-то сообщением, " +
-                "и бот ответит тебе им же");
-
-        if(command.startsWith("/")){
-            if(command.equals("/help") && message != null){
-                if(message.startsWith("/")){
-                    return commandHelp.getOrDefault(message, errorMes);
-                }
-                else{
-                    return commandHelp.getOrDefault("/" + message, errorMes);
-                }
-            }
-            if(message == null && !command.equals("/echo"))
-                return commandsMap.getOrDefault(command, errorMes);
-            else if (command.equals("/echo")) {
-                return commandsMap.getOrDefault(command, errorMes);
-            }
+        Command commandOutput = commands.get(command);
+        // если такой команды не существует(те нет значения по ключу) - ошибка
+        if (commandOutput == null) {
+            return errorMes;
         }
-        return errorMes;
+        // если хелп - выводим инфу
+        if(command.equals("/help") && message != null) {
+            if(commands.containsKey(message)){
+                Command msgInfo = commands.get(message);
+                return msgInfo.getInfo();
+            } else if (commands.containsKey("/" + message)) {
+                Command msgInfo = commands.get("/" + message);
+                return msgInfo.getInfo();
+            } else {
+                return errorMes;
+            }
+        } else if (!command.equals("/help") && !command.equals("/echo") && message != null) {
+            return errorMes;
+        }
+        return commandOutput.execute(message);
     }
 }

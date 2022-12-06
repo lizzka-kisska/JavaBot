@@ -1,9 +1,9 @@
 package telegram.command;
 
-public class EchoCommand implements Command{
+public class EchoCommand implements Command {
     @Override
     public String execute(String message) {
-        if(message == null){
+        if (message == null) {
             return "/echo";
         }
         return message;

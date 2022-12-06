@@ -1,8 +1,8 @@
 package telegram.command;
 
-public class StartCommand implements Command{
+public class StartCommand implements Command {
     @Override
-    public String execute(String message){
+    public String execute(String message) {
         return """
                 Приффки))
                 Это бот нереальной легенды сунца Евы Марченковой и просто крутой чиксы Лизы Ант

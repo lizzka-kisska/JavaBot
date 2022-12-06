@@ -7,12 +7,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import telegram.command.*;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Bot extends TelegramLongPollingBot {
-    private final Map<String, Command> commands = new LinkedHashMap<>();
+    private static final Map<String, Command> commands = new LinkedHashMap<>();
 
     {
         commands.put("/start", new StartCommand());
@@ -64,7 +63,7 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public String parseProcessMessage(String textMsg) {
+    public static String parseProcessMessage(String textMsg) {
         String errorMes = "нажми /help, чтобы узнать команды >:(";
 
         int spaceIndex = textMsg.indexOf(" ");

@@ -1,6 +1,5 @@
 package telegram.command;
 
-import telegram.command.Command;
 
 import java.util.Map;
 
@@ -15,7 +14,7 @@ public class HelpCommand implements Command {
     public String execute(String message) {
         if (message == null) {
             StringBuilder sb = new StringBuilder();
-            commands.forEach((name,cmd) -> {
+            commands.forEach((name, cmd) -> {
                 sb.append(name).append(" — ").append(cmd.getInfo()).append("\n");
             });
             sb.append("\nтакже ты можешь написать /help + / + команда, чтобы узнать про эту команду");

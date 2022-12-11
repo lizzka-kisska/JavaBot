@@ -2,3 +2,4 @@
 .idea
 /constant.txt
 /checkstyle.xml
+.DS_Store

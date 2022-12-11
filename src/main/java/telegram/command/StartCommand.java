@@ -1,5 +1,7 @@
 package telegram.command;
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+
 public class StartCommand implements Command {
     @Override
     public String execute(String message) {
@@ -13,5 +15,10 @@ public class StartCommand implements Command {
     public String getInfo() {
         return "команда, которую нужно использовать, если ты забыл," +
                 " кто создатели бота или приветсвие";
+    }
+
+    @Override
+    public SendMessage buttons(String chatId) {
+        return null;
     }
 }

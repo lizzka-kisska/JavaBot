@@ -1,6 +1,8 @@
 package telegram.command;
 
 
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+
 import java.util.Map;
 
 public class HelpCommand implements Command {
@@ -17,7 +19,7 @@ public class HelpCommand implements Command {
             commands.forEach((name, cmd) -> {
                 sb.append(name).append(" — ").append(cmd.getInfo()).append("\n");
             });
-            sb.append("\nтакже ты можешь написать /help + / + команда, чтобы узнать про эту команду");
+            sb.append("\nтакже ты можешь написать /help + команда, чтобы узнать про эту команду");
             return sb.toString();
         }
         return "";
@@ -27,4 +29,10 @@ public class HelpCommand implements Command {
     public String getInfo() {
         return "команда, с помощью которой ты узнаешь другие команды бота";
     }
+
+    @Override
+    public SendMessage buttons(String chatId) {
+        return null;
+    }
+
 }

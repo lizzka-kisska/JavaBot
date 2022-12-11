@@ -13,7 +13,7 @@ public class ParseProcessMessageTest {
         String result = bot.parseProcessMessage(textMsg);
         String equalResult = """
                 Это крутой бот свэг
-                Ты можешь помочь другим и/или попросить помощи других с выбором шмоток, лука, прически, мэкапа, стиля музыки итд""";
+                Ты можешь помочь другим и/или попросить помощи других с выбором шмоток, лука, прически, мэкапа, итд""";
         Assertions.assertEquals(result, equalResult);
     }
 
@@ -64,12 +64,14 @@ public class ParseProcessMessageTest {
     void checkHelpCommandEmptyMessage() {
         String textMsg = "/help";
         String result = bot.parseProcessMessage(textMsg);
-        String equalResult = "/start — команда, которую нужно использовать, если ты забыл, кто создатели бота или приветсвие\n" +
+        String equalResult = "/start — команда, которую нужно использовать, если ты забыл, " +
+                "кто создатели бота или приветсвие\n" +
                 "/about — команда, с помощью которой ты узнаешь для чего этот бот, кроме как для зачета по ооп\n" +
                 "/echo — команда, которую ты ДОЛЖЕН использовать с каким-то сообщением, и бот ответит тебе им же\n" +
                 "/help — команда, с помощью которой ты узнаешь другие команды бота\n" +
+                "/who_am_i — команда, для того, чтобы ты выбрал, кем ты хочешь быть\n" +
                 "\n" +
-                "также ты можешь написать /help + / + команда, чтобы узнать про эту команду";
+                "также ты можешь написать /help + команда, чтобы узнать про эту команду";
         Assertions.assertEquals(result, equalResult);
     }
 

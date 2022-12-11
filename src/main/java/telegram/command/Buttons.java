@@ -14,7 +14,7 @@ public class Buttons {
 //        Создаем обьект InlineKeyboardButton, у него есть 2 параметра: текст на кнопке и то, что отсылается на
 //        сервер при нажатии
         InlineKeyboardButton button1 = new InlineKeyboardButton();
-        button1.setText("я фоток отпрвлятель");
+        button1.setText("я фоток отправлятель");
         button1.setCallbackData("send");
         InlineKeyboardButton button2 = new InlineKeyboardButton();
         button2.setText("я фоток получатель");

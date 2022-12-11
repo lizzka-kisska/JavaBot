@@ -14,7 +14,7 @@ public class StartCommand implements Command {
     @Override
     public String getInfo() {
         return "команда, которую нужно использовать, если ты забыл," +
-                " кто создатели бота или приветсвие";
+                " кто создатели бота или хочешь поздороваться ещё раз";
     }
 
     @Override

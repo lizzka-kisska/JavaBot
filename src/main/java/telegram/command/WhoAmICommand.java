@@ -16,7 +16,7 @@ public class WhoAmICommand implements Command {
     @Override
     public SendMessage buttons(String chatId) {
         Buttons buttons = new Buttons();
-        int id = Integer.parseInt(chatId);
+        long id = Integer.parseInt(chatId);
         return buttons.inlineKeyBoardMessage(id);
     }
 }

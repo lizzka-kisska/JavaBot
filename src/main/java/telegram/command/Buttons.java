@@ -19,26 +19,19 @@ public class Buttons {
         InlineKeyboardButton button2 = new InlineKeyboardButton();
         button2.setText("я фоток получатель");
         button2.setCallbackData("get");
-        InlineKeyboardButton button3 = new InlineKeyboardButton();
-        button3.setText("я хочу все");
-        button3.setCallbackData("send&get");
 //        Добавляем его в список, таким образом создавая ряд
         List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
         List<InlineKeyboardButton> buttonsRow2 = new ArrayList<>();
-        List<InlineKeyboardButton> buttonsRow3 = new ArrayList<>();
         buttonsRow1.add(button1);
         buttonsRow2.add(button2);
-        buttonsRow3.add(button3);
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(buttonsRow1);
         rowList.add(buttonsRow2);
-        rowList.add(buttonsRow3);
-//        установливаем кнопки в обьект разметки клавиатуры
         inlineKeyboardMarkup.setKeyboard(rowList);
 
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText("выбирай");
+        sendMessage.setText("выбирай!!!\nTы можешь быть и тем, и тем, для этого достаточно выбрать 2 кнопку");
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
         return sendMessage;
     }

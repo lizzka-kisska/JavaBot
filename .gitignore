@@ -2,4 +2,5 @@
 .idea
 /constant.txt
 /checkstyle.xml
-.DS_Store
+/.DS_Store
+/Icon

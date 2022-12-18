@@ -1,5 +1,6 @@
 package telegram;
 
+import database.CollaborationDatabase;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -45,35 +46,53 @@ public class Bot extends TelegramLongPollingBot {
                 Message message = update.getMessage();
                 //Достаем из inMess id чата пользователя
                 String chatId = message.getChatId().toString();
+                //если это команда, либо парсим, либо выдаем кнопки
+                if (message.getText().startsWith("/")) {
+                    if (message.getText().equals("/who_am_i")) {
+                        Command executeButton = commands.get("/who_am_i");
+                        execute(executeButton.buttons(chatId));
+                    } else {
+                        String response = parseProcessMessage(message.getText());
+                        SendMessage sendResponse = new SendMessage();
+                        sendResponse.setChatId(chatId);
+                        sendResponse.setText(response);
 
-                if (message.getText().equals("/who_am_i")) {
-                    Command executeButton = commands.get("/who_am_i");
-                    execute(executeButton.buttons(chatId));
+                        execute(sendResponse);
+                    }
                 } else {
-                    //Получаем текст сообщения пользователя, отправляем в написанный нами обработчик
-                    String response = parseProcessMessage(message.getText());
-                    //Создаем объект класса SendMessage - наш будущий ответ пользователю
-                    SendMessage sendResponse = new SendMessage();
+                    //если не команда, значит, нужно переслать
+                    CollaborationDatabase data = new CollaborationDatabase();
+                    String newChatId = data.forwardToReviewer(chatId);
 
-                    //Добавляем в наше сообщение id чата а также наш ответ
-                    sendResponse.setChatId(chatId);
-                    sendResponse.setText(response);
+                    SendMessage sendResponseToReviewer = new SendMessage();
+                    sendResponseToReviewer.setChatId(newChatId);
+                    sendResponseToReviewer.setText(message.getText());
 
-                    //Отправляем в чат
-                    execute(sendResponse);
+                    execute(sendResponseToReviewer);
+
+                    SendMessage sendResponseToSender = new SendMessage();
+                    sendResponseToSender.setText("твое смс успешно отправлено крутому юзеру свэг #hype");
+                    sendResponseToSender.setChatId(chatId);
+                    execute(sendResponseToSender);
+
                 }
             } else if (update.hasCallbackQuery()) {
+//                если есть отклик, то нужно добавить в бд
                 SendMessage sendResponse = new SendMessage();
+                long chatId = update.getCallbackQuery().getMessage().getChatId();
 
                 if (update.getCallbackQuery().getData().equals("send")) {
                     sendResponse.setText("у у у ты фоток отправлятель");
                 } else if (update.getCallbackQuery().getData().equals("get")) {
                     sendResponse.setText("у у у ты фоток получатель");
-                } else if (update.getCallbackQuery().getData().equals("send&get")) {
-                    sendResponse.setText("у у у ты фоток отправитель и фоток получатель");
                 }
-                sendResponse.setChatId(update.getCallbackQuery().getMessage().getChatId());
+                sendResponse.setChatId(chatId);
                 execute(sendResponse);
+
+                if (update.getCallbackQuery().getData().equals("get")) {
+                    CollaborationDatabase data = new CollaborationDatabase();
+                    data.insertToDatabase(String.valueOf(chatId));
+                }
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();

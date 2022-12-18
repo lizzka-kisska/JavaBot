@@ -53,45 +53,33 @@ public class Bot extends TelegramLongPollingBot {
                         execute(executeButton.buttons(chatId));
                     } else {
                         String response = parseProcessMessage(message.getText());
-                        SendMessage sendResponse = new SendMessage();
-                        sendResponse.setChatId(chatId);
-                        sendResponse.setText(response);
-
-                        execute(sendResponse);
+                        sendMessage(chatId, response);
                     }
                 } else {
                     //если не команда, значит, нужно переслать
                     CollaborationDatabase data = new CollaborationDatabase();
                     String newChatId = data.forwardToReviewer(chatId);
 
-                    SendMessage sendResponseToReviewer = new SendMessage();
-                    sendResponseToReviewer.setChatId(newChatId);
-                    sendResponseToReviewer.setText(message.getText());
+                    sendMessage(newChatId, "тебе пришло новое сообщение, " +
+                            "посмотри, вдруг там что-то интересное");
+                    sendMessage(newChatId, message.getText());
 
-                    execute(sendResponseToReviewer);
-
-                    SendMessage sendResponseToSender = new SendMessage();
-                    sendResponseToSender.setText("твое смс успешно отправлено крутому юзеру свэг #hype");
-                    sendResponseToSender.setChatId(chatId);
-                    execute(sendResponseToSender);
+                    sendMessage(chatId, "твое смс успешно отправлено крутому юзеру #swag");
 
                 }
             } else if (update.hasCallbackQuery()) {
 //                если есть отклик, то нужно добавить в бд
-                SendMessage sendResponse = new SendMessage();
-                long chatId = update.getCallbackQuery().getMessage().getChatId();
+                String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
 
                 if (update.getCallbackQuery().getData().equals("send")) {
-                    sendResponse.setText("у у у ты фоток отправлятель");
+                    sendMessage(chatId, "у у у ты фоток отправлятель");
                 } else if (update.getCallbackQuery().getData().equals("get")) {
-                    sendResponse.setText("у у у ты фоток получатель");
+                    sendMessage(chatId,"у у у ты фоток получатель");
                 }
-                sendResponse.setChatId(chatId);
-                execute(sendResponse);
 
                 if (update.getCallbackQuery().getData().equals("get")) {
                     CollaborationDatabase data = new CollaborationDatabase();
-                    data.insertToDatabase(String.valueOf(chatId));
+                    data.insertToDatabase(chatId);
                 }
             }
         } catch (TelegramApiException e) {
@@ -126,6 +114,13 @@ public class Bot extends TelegramLongPollingBot {
             return errorMes;
         }
         return commandOutput.execute(message);
+    }
+
+    public void sendMessage(String chatId, String message) throws TelegramApiException {
+        SendMessage send = new SendMessage();
+        send.setChatId(chatId);
+        send.setText(message);
+        execute(send);
     }
 }
 

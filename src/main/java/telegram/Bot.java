@@ -3,11 +3,15 @@ package telegram;
 import database.CollaborationDatabase;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.MessageEntity;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import telegram.command.*;
 
+import java.sql.SQLException;
 import java.util.*;
 
 public class Bot extends TelegramLongPollingBot {
@@ -58,15 +62,34 @@ public class Bot extends TelegramLongPollingBot {
                 } else {
                     //если не команда, значит, нужно переслать
                     CollaborationDatabase data = new CollaborationDatabase();
-                    String newChatId = data.forwardToReviewer(chatId);
+                    String reviewer = data.checkSender(chatId);
+                    if (reviewer != null) {
+                        sendMessage(chatId, "отзыв отправился! спасибо что были с нами");
+                        sendMessage(reviewer, "получите и распишитесь! отзыв:)");
+                        sendMessage(reviewer, message.getText());
+                    } else {
+                        String newChatId = data.forwardToReviewer(chatId);
 
-                    sendMessage(newChatId, "тебе пришло новое сообщение, " +
-                            "посмотри, вдруг там что-то интересное");
-                    sendMessage(newChatId, message.getText());
+                        sendMessage(newChatId, "тебе пришло новое сообщение, " +
+                                "посмотри, вдруг там что-то интересное");
+                        sendMessage(newChatId, message.getText());
 
-                    sendMessage(chatId, "твое смс успешно отправлено крутому юзеру #swag");
-
+                        sendMessage(chatId, "твое смс успешно отправлено крутому юзеру #swag");
+                    }
                 }
+//            }else if (update.hasMessage() && update.getMessage().hasPhoto()) {
+//                Message message = update.getMessage();
+//                String chatId = message.getChatId().toString();
+//                List<PhotoSize> photo = message.getPhoto();
+//                String photoId = String.valueOf(photo.get(0));
+////                если фото, то нужно переслать
+//                CollaborationDatabase data = new CollaborationDatabase();
+//                String newChatId = data.forwardToReviewer(chatId);
+//                SendMessage send = new SendMessage();
+//                send.setChatId(newChatId);
+//                SendPhoto sendPhoto = new SendPhoto();
+//                sendPhoto.setChatId(newChatId);
+//                sendPhoto.setPhoto(photoId);
             } else if (update.hasCallbackQuery()) {
 //                если есть отклик, то нужно добавить в бд
                 String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
@@ -84,6 +107,8 @@ public class Bot extends TelegramLongPollingBot {
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

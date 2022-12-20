@@ -46,7 +46,11 @@
             <version>5.9.0</version>
             <scope>compile</scope>
         </dependency>
-
+        <dependency>
+            <groupId>ru.stachek66.nlp</groupId>
+            <artifactId>mystem-scala</artifactId>
+            <version>0.1.4</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -7,7 +7,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.stachek66.nlp.mystem.holding.MyStemApplicationException;
 import telegram.command.*;
+import telegram.morphology.CheckingMessageForObsceneLanguage;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -61,16 +63,29 @@ public class Bot extends TelegramLongPollingBot {
                     //если не команда, значит, ответ на фотку, либо ошибка
                     CollaborationDatabase data = new CollaborationDatabase();
                     String sender = data.checkSender(chatId);
-                    if(sender == null) {
+                    if (sender == null) {
                         sendMessage(chatId, "нажми /help, чтобы узнать команды >:(");
 
-                    }else {
+                    } else {
                         sendMessage(chatId, "отзыв отправился! спасибо что были с нами");
                         sendMessage(sender, "получите и распишитесь! отзыв:)");
-                        sendMessage(sender, message.getText());
+                        SendMessage sendCensoredMessage = new SendMessage();
+                        sendCensoredMessage.enableMarkdownV2(true);
+                        sendCensoredMessage.setChatId(sender);
+                        String censoredReviewText = CheckingMessageForObsceneLanguage.creatingCensoredMessage(message.getText().replace("_", "\\_")
+                                .replace("*", "\\*")
+                                .replace("+", "\\+")
+                                .replace("-", "\\-")
+                                .replace(">", "\\>")
+                                .replace("[", "\\[")
+                                .replace("`", "\\`")
+                                .replace(")", "\\)")
+                                .replace("(", "\\("));
+                        sendCensoredMessage.setText(censoredReviewText);
+                        execute(sendCensoredMessage);
                     }
                 }
-            }else if (update.hasMessage() && update.getMessage().hasPhoto()) {
+            } else if (update.hasMessage() && update.getMessage().hasPhoto()) {
 //                если фото, то нужно переслать
                 Message message = update.getMessage();
                 String chatId = message.getChatId().toString();
@@ -88,7 +103,7 @@ public class Bot extends TelegramLongPollingBot {
 
                 sendPhoto.setPhoto(inputFile);
                 sendMessage(newChatId, "тебе пришло новое сообщение, " +
-                                "посмотри, вдруг там что-то интересное");
+                        "посмотри, вдруг там что-то интересное");
                 execute(sendPhoto);
                 sendMessage(chatId, "твое смс успешно отправлено крутому юзеру #swag");
             } else if (update.hasCallbackQuery()) {
@@ -98,7 +113,7 @@ public class Bot extends TelegramLongPollingBot {
                 if (update.getCallbackQuery().getData().equals("send")) {
                     sendMessage(chatId, "у у у ты фоток отправлятель");
                 } else if (update.getCallbackQuery().getData().equals("get")) {
-                    sendMessage(chatId,"у у у ты фоток получатель");
+                    sendMessage(chatId, "у у у ты фоток получатель");
                 }
 
                 if (update.getCallbackQuery().getData().equals("get")) {
@@ -109,6 +124,8 @@ public class Bot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (MyStemApplicationException e) {
             throw new RuntimeException(e);
         }
     }
